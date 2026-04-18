@@ -33,7 +33,7 @@ graph LR
 ```
 
 ## Detailed Flow
-![Project Demo](ai-news-aggregator/Tree-diagram.png)
+![Project Demo](TreeDiagram.png "Tree Diagram")
 
 ## How It Works
 
