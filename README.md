@@ -32,6 +32,9 @@ graph LR
     style G fill:#ffe1f5
 ```
 
+## Detailed Flow
+![Project Demo](ai-news-aggregator\Tree diagram.png)
+
 ## How It Works
 
 ### Pipeline Flow
@@ -172,7 +175,6 @@ class CustomScraper:
    MY_EMAIL=your_email@gmail.com
    APP_PASSWORD=your_gmail_app_password
    DATABASE_URL=postgresql://user:pass@host:port/db
-   ENVIRONMENT=LOCAL  # Optional: auto-detected from DATABASE_URL if contains "render.com"
    
    # Optional: Webshare Proxy (for YouTube transcript fetching)
    # Get credentials from https://www.webshare.io/
@@ -220,26 +222,6 @@ uv run python -m app.services.process_curator
 uv run python -m app.services.process_email
 ```
 
-## Deployment
-
-### Render.com
-
-The project is configured for deployment on Render.com:
-
-1. **Database**: PostgreSQL service (auto-configured)
-2. **Cron Job**: Scheduled daily execution via `render.yaml`
-3. **Environment**: Automatically detected as PRODUCTION when `DATABASE_URL` contains "render.com" (no manual setting needed)
-
-See `RENDER_SETUP.md` for detailed deployment instructions.
-
-### Docker
-
-Build and run:
-```bash
-docker build -t ai-news-aggregator .
-docker run --env-file .env ai-news-aggregator
-```
-
 ## Key Features
 
 - **Modular Architecture**: Base classes make it easy to extend
@@ -247,7 +229,6 @@ docker run --env-file .env ai-news-aggregator
 - **LLM-Powered**: Uses OpenAI for summarization and curation
 - **Personalized**: User profile-based ranking
 - **Duplicate Prevention**: Tracks sent digests
-- **Environment Aware**: Supports LOCAL and PRODUCTION environments
 
 ## Technology Stack
 

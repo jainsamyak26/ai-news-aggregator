@@ -1,73 +1,14 @@
 # Database Management
 
-## Environment Configuration
+## Database Configuration
 
-The system supports two environments: **LOCAL** and **PRODUCTION**.
-
-### Setting Environment
-
-Set the `ENVIRONMENT` variable in your `.env` file:
+Configure your PostgreSQL database connection using environment variables:
 
 ```bash
-# For local development
-ENVIRONMENT=LOCAL
+# Database Connection (defaults provided for local development)
+DATABASE_URL=postgresql://user:pass@host:port/db
 
-# For production (Render)
-ENVIRONMENT=PRODUCTION
-```
-
-If not set, defaults to `LOCAL`.
-
-### Database Connection
-
-The system automatically detects the environment based on:
-1. `ENVIRONMENT` variable
-2. Database URL (if contains `render.com` or `amazonaws.com`, treated as PRODUCTION)
-
-**Local Development:**
-- Uses `POSTGRES_*` environment variables
-- Defaults to `localhost:5432`
-
-**Production (Render):**
-- Uses `DATABASE_URL` (automatically provided by Render)
-- No manual configuration needed
-
-## Migration Scripts
-
-### Check Database Connection
-
-```bash
-python app/database/check_connection.py
-```
-
-Shows:
-- Current environment (LOCAL/PRODUCTION)
-- Database connection status
-- Table information
-- Column existence
-
-### Run Migration
-
-```bash
-# Local database
-python app/database/migrate_add_sent_at.py
-
-# Production database (requires confirmation)
-ENVIRONMENT=PRODUCTION python app/database/migrate_add_sent_at.py
-```
-
-**Safety Features:**
-- Shows environment and database info before running
-- Requires explicit confirmation for PRODUCTION migrations
-- Safe to run multiple times (uses `IF NOT EXISTS`)
-
-## Switching Environments
-
-### Local Development
-```bash
-# In .env file
-ENVIRONMENT=LOCAL
-DATABASE_URL=  # Leave empty or use local connection string
+# Or use individual variables for local development:
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_DB=ai_news_aggregator
@@ -75,34 +16,38 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 ```
 
-### Production (Render)
+## Setup
+
+### Create Tables
+
 ```bash
-# In Render dashboard, set:
-ENVIRONMENT=PRODUCTION
-# DATABASE_URL is automatically set by Render
+# Automatically creates all tables if they don't exist
+python -m app.database.create_tables
 ```
 
-### Manual Production Migration
+Or tables are created automatically on first pipeline run:
 
-To run migrations on production database locally:
+```bash
+# Tables are initialized when running the pipeline
+python main.py
+```
 
-1. Get production `DATABASE_URL` from Render dashboard
-2. Set environment variables:
-```bash
-export ENVIRONMENT=PRODUCTION
-export DATABASE_URL=postgresql://user:pass@host:port/dbname
-```
-3. Run migration:
-```bash
-python app/database/migrate_add_sent_at.py
-```
-4. Confirm when prompted (type 'yes')
+## Database Access
+
+The connection module provides:
+
+- `engine` - SQLAlchemy engine for direct query execution
+- `SessionLocal` - Session factory for database operations
+- `get_session()` - Get a database session instance
+
+## Models
+
+All database models are defined in `models.py` using SQLAlchemy ORM.
 
 ## Best Practices
 
-1. **Always check connection first** before running migrations
-2. **Use LOCAL for development** - safer and faster
-3. **Double-check environment** before production migrations
-4. **Keep .env file local** - never commit production credentials
-5. **Use Render environment variables** for production deployments
+1. **Always check connection** before running migrations
+2. **Use individual POSTGRES_* variables** for local development
+3. **Keep .env file local** - never commit credentials
+4. **Verify database URL** format before connecting
 
