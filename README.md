@@ -1,50 +1,338 @@
-# AI News Aggregator - Live Build Repository
+# AI News Aggregator
 
-This repository accompanies my 3-hour live coding session where I build a complete AI-powered news aggregator from scratch. This is a **private repository** containing valuable implementation details and deployment strategies used in production environments.
+A sophisticated news aggregation system that automatically collects, processes, and delivers personalized AI news digests via email. This project demonstrates advanced patterns in data pipeline orchestration, LLM integration, and distributed content processing.
+
+## Overview
+
+**AI News Aggregator** is an intelligent system that:
+- 🔍 **Scrapes content** from multiple AI-focused sources (YouTube channels, RSS feeds)
+- 📝 **Processes content** using AI to extract key information and generate summaries
+- 🎯 **Curates digests** by ranking articles based on personalized user preferences
+- 📧 **Delivers digests** as formatted HTML emails to subscribers
+
+The system runs on a scheduled basis, automatically aggregating the latest AI news and delivering a personalized digest directly to your inbox.
+
+## Key Features
+
+- **Multi-source Aggregation**: Scrapes YouTube, RSS feeds (OpenAI, Anthropic, and custom sources)
+- **AI-Powered Processing**: Uses Google Gemini API for intelligent summarization and content extraction
+- **Personalization Engine**: Ranks content based on configurable user profiles and interests
+- **Duplicate Detection**: Prevents sending duplicate articles across digest batches
+- **Modular Architecture**: Easy to extend with new scrapers and processors
+- **Database Persistence**: PostgreSQL-backed storage for articles, digests, and user data
+- **Registry Pattern**: Extensible architecture for adding new content sources
+
+## Architecture
+
+```
+Scrapers (YouTube, RSS feeds) 
+         ↓
+    [Database]
+         ↓
+Processors (Markdown, Transcripts, Summaries)
+         ↓
+    [Database]
+         ↓
+Curator Agent (LLM-based ranking)
+         ↓
+Email Generator & Sender
+         ↓
+User Inbox
+```
 
 ## Project Structure
 
-This project is organized across three branches, each corresponding to a different phase of the build:
+```
+ai-news-aggregator/
+├── app/
+│   ├── agent/                 # LLM agents for processing
+│   │   ├── base.py           # Base agent class
+│   │   ├── curator_agent.py  # Article ranking and selection
+│   │   ├── digest_agent.py   # Summary generation
+│   │   └── email_agent.py    # Email content generation
+│   ├── config.py             # Configuration (YouTube channels, RSS feeds)
+│   ├── database/             # Database layer
+│   │   ├── models.py         # SQLAlchemy ORM models
+│   │   ├── repository.py     # Data access layer
+│   │   ├── connection.py     # Database connection management
+│   │   └── create_tables.py  # Schema initialization
+│   ├── profiles/             # User configuration
+│   │   └── user_profile.py   # User preferences and interests
+│   ├── scrapers/             # Content collection
+│   │   ├── base.py           # Base scraper for RSS feeds
+│   │   ├── anthropic.py      # Anthropic blog scraper
+│   │   ├── openai.py         # OpenAI blog scraper
+│   │   └── youtube.py        # YouTube channel scraper
+│   ├── services/             # Content processing
+│   │   ├── base.py           # Base service class
+│   │   ├── process_anthropic.py
+│   │   ├── process_youtube.py
+│   │   ├── process_digest.py
+│   │   ├── process_curator.py
+│   │   ├── process_email.py
+│   │   └── email.py          # Email sending service
+│   ├── daily_runner.py       # Main orchestration pipeline
+│   ├── runner.py             # Scraper execution registry
+│   └── example.env           # Environment template
+├── main.py                   # Entry point
+├── pyproject.toml           # Project dependencies
+└── README.md                # This file
+```
 
-- **`master`** - Part 1: Local setup and core functionality
-- **`deployment`** - Part 2: Deployment configuration and infrastructure
-- **`deployment-final`** - Part 3: Final optimizations and production-ready changes
+## How It Works
 
-Each branch serves as an intermediate checkpoint, allowing you to reference the exact state of the codebase at any point during the video.
+### 1. Scraping Phase
+- Collects articles from configured YouTube channels and RSS feeds
+- Extracts metadata (title, URL, publish date, source)
+- Stores raw content in the database for processing
 
-## How This Video Works
+### 2. Processing Phase
+- **Markdown Conversion**: Converts HTML articles to readable markdown
+- **YouTube Transcripts**: Extracts and processes video transcripts
+- **Digest Generation**: Generates summaries using Google Gemini's LLM
 
-This is a **live coding build**, not a traditional step-by-step tutorial. Here's what to expect:
+### 3. Curation Phase
+- Uses the Curator Agent to rank articles by relevance
+- Filters based on user profile (interests, expertise level, preferences)
+- Selects top N articles for the digest
 
-- **Fast-paced development** - I code at my natural pace, leveraging AI tools extensively
-- **AI-assisted workflow** - You won't see every code snippet or file generation in real-time
-- **Real-world approach** - This condenses 20-40 hours of learning into a single session
-- **Not cookie-cutter** - Unlike structured tutorials, this reflects how coding actually happens in practice
+### 4. Email Delivery
+- Formats curated content as HTML email
+- Adds personalization
+- Tracks which digests have been sent to prevent duplicates
+- Sends via Gmail SMTP
 
-## How to Follow Along
+### 5. Scheduling
+- The system can run on a schedule (daily recommended)
+- Or execute manually via command line
 
-### Recommended Approach (Maximum Learning)
+## Getting Started
 
-1. **Clone this repository** before starting the video
-2. **Keep a local copy ready** on your system as you code along
-3. **Use intermediate checkpoints** - When I make major updates or run tests, pause and:
-   - Reference the corresponding branch in this repository
-   - Copy relevant code snippets into your project
-   - Use AI coding assistants to help you reach the same checkpoint
-4. **Iterate step-by-step** - Don't rush ahead. Ensure each phase works before moving forward
-5. **Expect confusion** - Some parts will move fast and may not be immediately clear. This is where real learning happens
+### Prerequisites
 
-### Alternative Approach (Not Recommended)
+- Python 3.12 or higher
+- PostgreSQL database
+- Google Gemini API key
+- Gmail account with app password (for email sending)
+- Webshare proxy account (optional, for YouTube transcripts)
 
-You can skip ahead to the `deployment-final` branch and try to get everything working, but you'll miss the iterative problem-solving process that makes this valuable.
+### Installation
 
-## Why This Approach?
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/ai-news-aggregator.git
+   cd ai-news-aggregator
+   ```
 
-Traditional tutorials show you the "right way" to do things. This video shows you the **real way** - with AI assistance, rapid iteration, debugging, and adapting on the fly. By following along and hitting the same checkpoints, you'll:
+2. **Install dependencies**
+   ```bash
+   uv sync
+   ```
 
-- Learn how to effectively leverage AI coding tools
-- Understand the thought process behind architectural decisions
-- Experience real-world development workflows
-- Build muscle memory through hands-on practice
+3. **Set up environment variables**
+   ```bash
+   cp app/example.env .env
+   ```
+   
+   Edit `.env` and fill in:
+   ```bash
+   GEMINI_API_KEY=your_gemini_api_key
+   MY_EMAIL=your_gmail@gmail.com
+   APP_PASSWORD=your_gmail_app_password
+   DATABASE_URL=postgresql://user:password@localhost:5432/ai_news_aggregator
+   
+   # Optional: Webshare proxy for YouTube transcripts
+   WEBSHARE_USERNAME=your_username
+   WEBSHARE_PASSWORD=your_password
+   ```
 
-**The most valuable learning happens when you struggle, reference the code, and push through to the next checkpoint.**
+4. **Initialize database**
+   ```bash
+   uv run python -m app.database.create_tables
+   ```
+
+5. **Configure sources**
+   - Edit `app/config.py` to add/remove YouTube channels
+   - Modify `app/profiles/user_profile.py` to customize interests
+
+### Running the Aggregator
+
+**Full pipeline:**
+```bash
+uv run main.py
+```
+
+**With parameters:**
+```bash
+uv run main.py [hours] [top_n]
+# Example: uv run main.py 48 10
+# Scrapes last 48 hours, selects top 10 articles
+```
+
+**Individual steps:**
+```bash
+# Scraping only
+uv run python -m app.runner
+
+# Processing
+uv run python -m app.services.process_anthropic
+uv run python -m app.services.process_youtube
+uv run python -m app.services.process_digest
+
+# Curation
+uv run python -m app.services.process_curator
+
+# Email
+uv run python -m app.services.process_email
+```
+
+## Configuration
+
+### YouTube Channels
+Edit `app/config.py`:
+```python
+YOUTUBE_CHANNELS = [
+    "UCawZsQWqfGSbCI5yjkdVkTA",  # Add channel IDs
+]
+```
+
+### User Profile
+Customize `app/profiles/user_profile.py`:
+```python
+USER_PROFILE = {
+    "name": "Your Name",
+    "interests": [
+        "Large Language Models",
+        "AI agents",
+        # Add your interests
+    ],
+    "preferences": {
+        "prefer_practical": True,
+        "prefer_technical_depth": True,
+    }
+}
+```
+
+### Database Configuration
+The system supports both single `DATABASE_URL` and individual `POSTGRES_*` variables. For local development with docker-compose:
+
+```bash
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=ai_news_aggregator
+```
+
+## Database Models
+
+The system uses SQLAlchemy ORM with the following main models:
+- **Articles**: Raw scraped content
+- **Digests**: Processed and ranked articles
+- **Sent Digests**: Track what has been sent to prevent duplicates
+
+Refer to `app/database/models.py` for complete schema.
+
+## Extending the System
+
+### Adding a New RSS Feed Source
+
+Create a new scraper in `app/scrapers/`:
+
+```python
+from .base import BaseScraper, Article
+
+class MySourceScraper(BaseScraper):
+    @property
+    def rss_urls(self) -> List[str]:
+        return ["https://example.com/feed.xml"]
+```
+
+Register it in `app/runner.py`:
+```python
+SCRAPER_REGISTRY = [
+    ("my_source", MySourceScraper(), _save_rss_articles),
+]
+```
+
+### Adding a Custom Processor
+
+Inherit from `app/services/base.py` and implement the process method:
+
+```python
+from app.services.base import BaseService
+
+class MyProcessor(BaseService):
+    def process(self) -> dict:
+        # Your processing logic
+        pass
+```
+
+## Technology Stack
+
+| Component | Technology |
+|-----------|------------|
+| Language | Python 3.12+ |
+| Package Manager | UV |
+| Web Framework | None (CLI-based) |
+| Database | PostgreSQL |
+| ORM | SQLAlchemy 2.0+ |
+| LLM | Google Gemini API |
+| Scraping | BeautifulSoup4, feedparser |
+| Email | Gmail SMTP |
+| Data Validation | Pydantic |
+
+## Performance Considerations
+
+- **Batch Processing**: Articles are processed in batches for efficiency
+- **Caching**: Article content is cached to minimize API calls
+- **Duplicate Detection**: Prevents redundant email sends
+- **Lazy Loading**: Database queries use lazy loading patterns
+
+## Troubleshooting
+
+**Database Connection Issues**
+```bash
+uv run python -m app.database.create_tables
+```
+
+**Email Sending Fails**
+- Verify Gmail app password (not regular password)
+- Check `MY_EMAIL` and `APP_PASSWORD` environment variables
+- Ensure less secure apps are enabled (if applicable)
+
+**Missing Transcripts**
+- YouTube Transcript API may rate-limit
+- Optional: Use Webshare proxy by setting `WEBSHARE_USERNAME` and `WEBSHARE_PASSWORD`
+
+## Future Enhancements
+
+- [ ] Web dashboard for viewing digests
+- [ ] Admin panel for configuration
+- [ ] Multiple user profiles
+- [ ] Advanced filtering and search
+- [ ] Export to RSS/JSON formats
+- [ ] API endpoint for digests
+
+## License
+
+MIT License - feel free to use this project for personal or commercial purposes.
+
+## Contributing
+
+Contributions are welcome! Feel free to:
+- Report bugs and issues
+- Suggest new features
+- Submit pull requests with improvements
+- Share feedback and ideas
+
+## Support
+
+For questions or issues:
+1. Check existing GitHub issues
+2. Create a new issue with detailed information
+3. Include environment details and error logs
+
+---
+
+**Built with ❤️ for AI enthusiasts and researchers**
