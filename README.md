@@ -5,10 +5,10 @@ A sophisticated news aggregation system that automatically collects, processes, 
 ## Overview
 
 **AI News Aggregator** is an intelligent system that:
-- 🔍 **Scrapes content** from multiple AI-focused sources (YouTube channels, RSS feeds)
-- 📝 **Processes content** using AI to extract key information and generate summaries
-- 🎯 **Curates digests** by ranking articles based on personalized user preferences
-- 📧 **Delivers digests** as formatted HTML emails to subscribers
+- **Scrapes content** from multiple AI-focused sources (YouTube channels, RSS feeds)
+- **Processes content** using AI to extract key information and generate summaries
+- **Curates digests** by ranking articles based on personalized user preferences
+- **Delivers digests** as formatted HTML emails to subscribers
 
 The system runs on a scheduled basis, automatically aggregating the latest AI news and delivering a personalized digest directly to your inbox.
 
@@ -316,26 +316,4 @@ uv run python -m app.database.create_tables
 - [ ] Advanced filtering and search
 - [ ] Export to RSS/JSON formats
 - [ ] API endpoint for digests
-
-## License
-
-MIT License - feel free to use this project for personal or commercial purposes.
-
-## Contributing
-
-Contributions are welcome! Feel free to:
-- Report bugs and issues
-- Suggest new features
-- Submit pull requests with improvements
-- Share feedback and ideas
-
-## Support
-
-For questions or issues:
-1. Check existing GitHub issues
-2. Create a new issue with detailed information
-3. Include environment details and error logs
-
----
-
-**Built with ❤️ for AI enthusiasts and researchers**
+- [ ] Measure click events for users which would help to customize user preferences.
