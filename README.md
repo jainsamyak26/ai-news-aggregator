@@ -40,6 +40,9 @@ Email Generator & Sender
 User Inbox
 ```
 
+## Detailed Flow
+![Project Demo](TreeDiagram.png "Tree Diagram")
+
 ## Project Structure
 
 ```
